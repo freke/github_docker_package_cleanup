@@ -1,12 +1,27 @@
-run:
+install:
+    npm install
+
+run: install
     local-action . src/main.ts .env
 
-test:
+test: install
     npm run test
 
-package:
+package: install
     -rm -rf dist
+    npm run format:write
     npm run package
+
+check: install
+    npm run format:check
+
+lint: install
+    npm run lint
+
+fix: install
+    npm audit fix
+    npm run format:write
+    eslint . --fix
 
 clean:
     -rm -rf dist
