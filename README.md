@@ -39,13 +39,14 @@ Advanced Example (Regex & Org Support)
 
 ## ⚙️ Inputs
 
-Input	Description	Required	Default
-token	GitHub Token with packages: write permissions.	Yes	N/A
-package	The name of the container package.	Yes	N/A
-org	The GitHub Organization name (omit if user-owned).	No	N/A
-days	Delete versions older than this many days.	No	7
-keep	Comma-separated list of Tags, IDs, or Regex to protect.	No	""
-dry_run	If true, logs the targets without deleting them.	No	false
+| Input   | Description | Required | Default |
+|---------|-------------|----------|---------|
+| token   | GitHub token (`GITHUB_TOKEN` or PAT) with `write:packages` permissions. | Yes | N/A |
+| package | The name of the container package. | Yes | N/A |
+| org     | The GitHub Organization name (omit if user-owned). | No | N/A |
+| days    | Delete versions older than this many days. | No | 7 |
+| keep    | Comma-separated list of tags, IDs, or regex to protect. | No | "" |
+| dry_run | If true, logs the targets without deleting them. | No | false |
 
 ## 🔍 Filtering Logic
 
