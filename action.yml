@@ -1,4 +1,4 @@
-name: Github docker package cleanup
+name: GitHub docker package cleanup
 description: GitHub Action to automate the cleanup of old, non-production container images from the GitHub Container Registry (GHCR).
 
 branding:
