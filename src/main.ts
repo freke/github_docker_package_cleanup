@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import valid from "semver/functions/valid";
 import prerelease from "semver/functions/prerelease";
-import RE2 from "re2";
+import safe from "safe-regex";
 
 /**
  * The main function for the action.
@@ -24,14 +24,21 @@ export async function run(): Promise<void> {
       : [];
     const keepPatterns = keepInputs
       .map((input) => {
+        if (!safe(input)) {
+          core.warning(
+            `Regex pattern "${input}" is potentially unsafe and was ignored.`,
+          );
+          return null;
+        }
+
         try {
-          return new RE2(input);
-        } catch (e) {
+          return new RegExp(input);
+        } catch {
           core.warning(`Invalid regex pattern ignored: ${input}`);
           return null;
         }
       })
-      .filter(Boolean) as RegExp[];
+      .filter((p): p is RegExp => p !== null);
     const daysInput = core.getInput("days").trim();
     const daysThreshold = Number.parseInt(daysInput, 10);
     if (!Number.isFinite(daysThreshold) || daysThreshold < 0) {
@@ -59,7 +66,7 @@ export async function run(): Promise<void> {
           listOptions,
         );
 
-    let versionsToDelete = allVersions.filter((v) => {
+    const versionsToDelete = allVersions.filter((v) => {
       const tags = v.metadata?.container?.tags || [];
 
       // Never delete 'latest'
@@ -93,21 +100,21 @@ export async function run(): Promise<void> {
       } else {
         core.info(`Deleting version ${v.id} (Tags: ${tagList})...`);
 
-        const deleteParams = {
+        const baseParams = {
           package_type: "container" as const,
           package_name: packageName,
           package_version_id: v.id,
-          ...(org ? { org } : {}),
         };
 
         if (org) {
-          await octokit.rest.packages.deletePackageVersionForOrg(
-            deleteParams as any,
-          );
+          await octokit.rest.packages.deletePackageVersionForOrg({
+            ...baseParams,
+            org,
+          });
         } else {
-          await octokit.rest.packages.deletePackageVersionForAuthenticatedUser(
-            deleteParams as any,
-          );
+          await octokit.rest.packages.deletePackageVersionForAuthenticatedUser({
+            ...baseParams,
+          });
         }
       }
     }
