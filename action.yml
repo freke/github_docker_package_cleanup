@@ -1,0 +1,40 @@
+name: The name of your action here
+description: Provide a description here
+author: Your name or organization here
+
+branding:
+  icon: trash-2
+  color: red
+
+# Define your inputs here.
+inputs:
+  token:
+    required: true
+    description: 'Personal Access Token (PAT) for GitHub'
+  org:
+    required: false
+    description: 'Organization that owns the package'
+  package:
+    required: true
+    description: 'Package (docker image) name to clean up'
+  keep:
+    required: false
+    default: ''
+    description: 'Comma separated list of version IDs or tag regex patterns to keep'
+  days:
+    required: false
+    default: "7"
+    description: 'Number of days to keep packages'
+  dry_run:
+    required: false
+    default: "false"
+    description: 'Run without actually deleting the packages'
+
+# Define your outputs here.
+outputs:
+  deleted:
+    description: Number of deleted packages
+
+runs:
+  using: node24
+  main: dist/index.js

@@ -1,0 +1,28 @@
+{
+  "name": "github-docker-package-cleanup",
+  "version": "1.0.0",
+  "description": "GitHub Action for deleting outdated container package versions",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "package": "ncc build src/index.ts -C -o dist --minify --source-map",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@actions/core": "^2.0.2",
+    "@actions/github": "^7.0.0",
+    "re2": "^1.23.0",
+    "semver": "^7.7.3"
+  },
+  "devDependencies": {
+    "@github/local-action": "^7.0.0",
+    "@types/jest": "^30.0.0",
+    "@vercel/ncc": "^0.38.4",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3"
+  }
+}
