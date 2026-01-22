@@ -1,6 +1,5 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: GitHub docker package cleanup
+description: GitHub Action to automate the cleanup of old, non-production container images from the GitHub Container Registry (GHCR).
 
 branding:
   icon: trash-2
