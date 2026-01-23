@@ -19,10 +19,10 @@ lint: install
     npm run lint
 
 fix: install
-    npm audit fix
     npm run format:write
     eslint . --fix
 
 clean:
     -rm -rf dist
+    -rm -rf coverage
     -rm -rf node_modules
