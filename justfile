@@ -23,6 +23,5 @@ fix: install
     eslint . --fix
 
 clean:
-    -rm -rf dist
     -rm -rf coverage
     -rm -rf node_modules
