@@ -157,6 +157,42 @@ describe("run", () => {
     expect(core.setOutput).toHaveBeenCalledWith("deleted", 1);
   });
 
+  it("should delete old versions with no tag", async () => {
+    const oldDate = new Date("2023-10-18T10:00:00Z").getTime(); // 9 days ago
+    const recentDate = new Date("2023-10-25T10:00:00Z").getTime(); // 2 days ago
+
+    const versions = [
+      {
+        id: 1,
+        created_at: new Date(oldDate).toISOString(),
+        updated_at: new Date(oldDate).toISOString(),
+        metadata: { container: { tags: [] } },
+      },
+      {
+        id: 2,
+        created_at: new Date(recentDate).toISOString(),
+        updated_at: new Date(recentDate).toISOString(),
+        metadata: { container: { tags: [] } }, // Recent no tags
+      },
+    ];
+    mockApiResponse(versions);
+
+    await run();
+
+    // Expect delete to be called only for the old non taged version
+    expect(
+      mockOctokit.rest.packages.deletePackageVersionForAuthenticatedUser,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      mockOctokit.rest.packages.deletePackageVersionForAuthenticatedUser,
+    ).toHaveBeenCalledWith({
+      package_type: "container",
+      package_name: MOCK_PACKAGE_NAME,
+      package_version_id: 1,
+    });
+    expect(core.setOutput).toHaveBeenCalledWith("deleted", 1);
+  });
+
   it('should not delete versions with "latest" tag', async () => {
     const oldDate = new Date("2023-10-18T10:00:00Z").getTime(); // 9 days ago
 
