@@ -67,20 +67,32 @@ export async function run(): Promise<void> {
         );
 
     const versionsToDelete = allVersions.filter((v) => {
+      core.debug(`Examine package ${JSON.stringify(v)}`);
+
       const tags = v.metadata?.container?.tags || [];
 
-      // Never delete 'latest'
-      if (tags.includes("latest")) return false;
+      if (keepInputs.includes(v.id.toString())) {
+        core.debug(`White listed by ID`);
+        return false;
+      }
 
-      const isWhitelisted =
-        keepInputs.includes(v.id.toString()) ||
-        tags.some((tag) => keepPatterns.some((pattern) => pattern.test(tag)));
+      if (tags.length > 0) {
+        // Never delete 'latest'
+        if (tags.includes("latest")) return false;
 
-      if (isWhitelisted) return false;
+        const isWhitelisted = tags.some((tag) =>
+          keepPatterns.some((pattern) => pattern.test(tag)),
+        );
 
-      // Filter for non-semver OR prereleases (v1.0.0-beta)
-      const isCandidate = tags.some((t) => !valid(t) || !!prerelease(t));
-      if (!isCandidate) return false;
+        core.debug(`White listed ${isWhitelisted}`);
+        if (isWhitelisted) return false;
+
+        // Filter for non-semver OR prereleases (v1.0.0-beta)
+        const isCandidate = tags.some((t) => !valid(t) || !!prerelease(t));
+
+        core.debug(`Is candidate ${isCandidate}`);
+        if (!isCandidate) return false;
+      }
 
       // Calculate Age
       const updatedAt = new Date(v.updated_at).getTime();
@@ -89,10 +101,9 @@ export async function run(): Promise<void> {
       return ageInDays >= daysThreshold;
     });
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`to be deleted ${JSON.stringify(versionsToDelete)}`);
-
     for (const v of versionsToDelete) {
+      core.debug(`delete ${JSON.stringify(v)}`);
+
       const tagList = v.metadata?.container?.tags?.join(", ") || "no tags";
 
       if (dryRun) {
