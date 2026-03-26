@@ -16,8 +16,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@actions/core": "^2.0.2",
-    "@actions/github": "^7.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
     "safe-regex": "^2.1.1",
     "semver": "^7.7.3"
   },
@@ -27,6 +27,8 @@
     "@eslint/js": "^10.0.1",
     "@github/local-action": "^7.0.0",
     "@types/jest": "^30.0.0",
+    "@types/safe-regex": "^1.1.6",
+    "@types/semver": "^7.7.1",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.57.2",
     "@vercel/ncc": "^0.38.4",
