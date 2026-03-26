@@ -1,21 +1,15 @@
 // See: https://eslint.org/docs/latest/use/configure/configuration-files
 
-import { fixupPluginRules } from "@eslint/compat";
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import _import from "eslint-plugin-import";
 import jest from "eslint-plugin-jest";
 import prettier from "eslint-plugin-prettier";
 import globals from "globals";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const compat = new FlatCompat({
-  baseDirectory: dirname,
+  baseDirectory: import.meta.dirname,
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all,
 });
@@ -33,7 +27,6 @@ export default [
   ),
   {
     plugins: {
-      import: fixupPluginRules(_import),
       jest,
       prettier,
       "@typescript-eslint": typescriptEslint,
@@ -61,22 +54,12 @@ export default [
             "rollup.config.ts",
           ],
         },
-        tsconfigRootDir: dirname,
-      },
-    },
-
-    settings: {
-      "import/resolver": {
-        typescript: {
-          alwaysTryTypes: true,
-          project: "tsconfig.json",
-        },
+        tsconfigRootDir: import.meta.dirname,
       },
     },
 
     rules: {
       camelcase: "off",
-      "import/no-namespace": "off",
       "no-console": "off",
       "no-shadow": "off",
       "no-unused-vars": "off",
