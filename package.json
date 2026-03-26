@@ -27,8 +27,8 @@
     "@eslint/js": "^10.0.1",
     "@github/local-action": "^7.0.0",
     "@types/jest": "^30.0.0",
-    "@types/safe-regex": "^1.1.6",
     "@types/semver": "^7.7.1",
+    "@types/safe-regex": "^1.1.6",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.57.2",
     "@vercel/ncc": "^0.38.4",
@@ -38,7 +38,6 @@
     "eslint-plugin-prettier": "^5.5.5",
     "jest": "^30.2.0",
     "prettier": "^3.8.1",
-    "prettier-eslint": "^16.4.2",
     "ts-jest": "^29.4.6",
     "ts-jest-resolver": "^2.0.1",
     "typescript": "^5.9.3"

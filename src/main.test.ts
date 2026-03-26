@@ -1,15 +1,5 @@
 import { jest } from "@jest/globals";
-
-interface PackageVersion {
-  id: number;
-  created_at: string;
-  updated_at: string;
-  metadata?: {
-    container?: {
-      tags?: string[];
-    };
-  };
-}
+import type { PackageVersion } from "./types";
 
 const mockCore = {
   getInput: jest.fn(),
@@ -309,6 +299,47 @@ describe("run", () => {
       package_type: "container",
       package_name: MOCK_PACKAGE_NAME,
       package_version_id: 3,
+    });
+    expect(mockCore.setOutput).toHaveBeenCalledWith("deleted", 1);
+  });
+
+  it("should not delete whitelisted version by ID", async () => {
+    const oldDate = new Date("2023-10-18T10:00:00Z").getTime();
+
+    mockInput({
+      token: MOCK_TOKEN,
+      package: MOCK_PACKAGE_NAME,
+      days: "7",
+      keep: "101",
+    });
+
+    const versions: PackageVersion[] = [
+      {
+        id: 101,
+        created_at: new Date(oldDate).toISOString(),
+        updated_at: new Date(oldDate).toISOString(),
+        metadata: { container: { tags: ["old-tag"] } },
+      },
+      {
+        id: 102,
+        created_at: new Date(oldDate).toISOString(),
+        updated_at: new Date(oldDate).toISOString(),
+        metadata: { container: { tags: ["another-old-tag"] } },
+      },
+    ];
+    mockApiResponse(versions);
+
+    await run();
+
+    expect(
+      mockOctokit.rest.packages.deletePackageVersionForAuthenticatedUser,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      mockOctokit.rest.packages.deletePackageVersionForAuthenticatedUser,
+    ).toHaveBeenCalledWith({
+      package_type: "container",
+      package_name: MOCK_PACKAGE_NAME,
+      package_version_id: 102,
     });
     expect(mockCore.setOutput).toHaveBeenCalledWith("deleted", 1);
   });
