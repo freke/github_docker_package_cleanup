@@ -49,7 +49,7 @@ Advanced Example (Regex & Org Support)
 | package | The name of the container package.                                      | Yes      | N/A     |
 | org     | The GitHub Organization name (omit if user-owned).                      | No       | N/A     |
 | days    | Delete versions older than this many days.                              | No       | 7       |
-| keep    | Comma-separated list of tags, IDs, or regex to protect.                 | No       | ""      |
+| keep    | Comma-separated list of version IDs, tags, or regex patterns to keep.   | No       | ""      |
 | dry_run | If true, logs the targets without deleting them.                        | No       | false   |
 
 ## 🔍 Filtering Logic
@@ -64,6 +64,12 @@ The action filters the list of all package versions based on these sequential ru
 ## 🛡 Security
 
 This action uses safe-regex to validate your keep patterns before execution. This prevents ReDoS (Regular Expression Denial of Service) attacks by ensuring your patterns don't contain catastrophic backtracking logic.
+
+## 📦 Outputs
+
+| Output  | Description                        |
+| ------- | ---------------------------------- |
+| deleted | Number of package versions deleted |
 
 ## 📦 Permissions
 

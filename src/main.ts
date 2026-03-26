@@ -3,15 +3,14 @@ import * as github from "@actions/github";
 import valid from "semver/functions/valid";
 import prerelease from "semver/functions/prerelease";
 import safe from "safe-regex";
+import type { PackageVersion } from "./types";
 
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
 export async function run(): Promise<void> {
   try {
     const myToken = core.getInput("token");
+    if (!myToken) {
+      throw new Error("Input 'token' is required");
+    }
     const packageName = core.getInput("package");
     const org = core.getInput("org");
 
@@ -66,7 +65,7 @@ export async function run(): Promise<void> {
           listOptions,
         );
 
-    const versionsToDelete = allVersions.filter((v) => {
+    const versionsToDelete = allVersions.filter((v: PackageVersion) => {
       core.debug(`Examine package ${JSON.stringify(v)}`);
 
       const tags = v.metadata?.container?.tags || [];
@@ -80,7 +79,7 @@ export async function run(): Promise<void> {
         // Never delete 'latest'
         if (tags.includes("latest")) return false;
 
-        const isWhitelisted = tags.some((tag) =>
+        const isWhitelisted = tags.some((tag: string) =>
           keepPatterns.some((pattern) => pattern.test(tag)),
         );
 
@@ -88,7 +87,9 @@ export async function run(): Promise<void> {
         if (isWhitelisted) return false;
 
         // Filter for non-semver OR prereleases (v1.0.0-beta)
-        const isCandidate = tags.some((t) => !valid(t) || !!prerelease(t));
+        const isCandidate = tags.some(
+          (t: string) => !valid(t) || !!prerelease(t),
+        );
 
         core.debug(`Is candidate ${isCandidate}`);
         if (!isCandidate) return false;
@@ -114,22 +115,20 @@ export async function run(): Promise<void> {
       } else {
         core.info(`Deleting version ${v.id} (Tags: ${tagList})...`);
 
-        const baseParams = {
-          package_type: "container" as const,
-          package_name: packageName,
-          package_version_id: v.id,
-        };
-
         try {
           if (org) {
             await octokit.rest.packages.deletePackageVersionForOrg({
-              ...baseParams,
+              package_type: "container" as const,
+              package_name: packageName,
+              package_version_id: v.id,
               org,
             });
           } else {
             await octokit.rest.packages.deletePackageVersionForAuthenticatedUser(
               {
-                ...baseParams,
+                package_type: "container" as const,
+                package_name: packageName,
+                package_version_id: v.id,
               },
             );
           }
