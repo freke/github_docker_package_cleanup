@@ -101,6 +101,8 @@ export async function run(): Promise<void> {
       return ageInDays >= daysThreshold;
     });
 
+    let deletedCount = 0;
+
     for (const v of versionsToDelete) {
       core.debug(`delete ${JSON.stringify(v)}`);
 
@@ -108,6 +110,7 @@ export async function run(): Promise<void> {
 
       if (dryRun) {
         core.info(`[DRY-RUN] Would delete version ${v.id} (Tags: ${tagList})`);
+        deletedCount++;
       } else {
         core.info(`Deleting version ${v.id} (Tags: ${tagList})...`);
 
@@ -117,21 +120,35 @@ export async function run(): Promise<void> {
           package_version_id: v.id,
         };
 
-        if (org) {
-          await octokit.rest.packages.deletePackageVersionForOrg({
-            ...baseParams,
-            org,
-          });
-        } else {
-          await octokit.rest.packages.deletePackageVersionForAuthenticatedUser({
-            ...baseParams,
-          });
+        try {
+          if (org) {
+            await octokit.rest.packages.deletePackageVersionForOrg({
+              ...baseParams,
+              org,
+            });
+          } else {
+            await octokit.rest.packages.deletePackageVersionForAuthenticatedUser(
+              {
+                ...baseParams,
+              },
+            );
+          }
+          deletedCount++;
+        } catch (err) {
+          if (
+            err instanceof Error &&
+            err.message.includes("cannot be deleted")
+          ) {
+            core.warning(`Skipped deleting version ${v.id}: ${err.message}`);
+            continue;
+          }
+          throw err;
         }
       }
     }
 
     // Set outputs for other workflow steps to use
-    core.setOutput("deleted", versionsToDelete.length);
+    core.setOutput("deleted", deletedCount);
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) {
